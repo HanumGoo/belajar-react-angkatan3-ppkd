@@ -1,0 +1,75 @@
+.container {
+  max-width: 720px;
+  margin: 40px auto;
+  padding: 0 16px;
+}
+
+header {
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+header h1 {
+  font-size: 1.8rem;
+  margin: 0 0 8px 0;
+
+  color: #0f172a;
+}
+
+.form-card {
+  background-color: white;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 0 3px black;
+  border: 1px solid whitesmoke;
+  margin-bottom: 32px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6;
+  margin-bottom: 10px;
+}
+
+.form-group label {
+  font-weight: bold;
+  font-size: 1rem;
+  color: #475569;
+}
+
+.form-group input {
+  padding: 10px 12px;
+  border: 1px solid #475560;
+  border-radius: 8px;
+  font-size: 0.5rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.form-group input:focus {
+  border-color: #2563eb;
+}
+
+.btn-submit {
+  width: 100%;
+  background-color: #2563eb;
+  color: white;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-submit:hover {
+  background-color: #658fea;
+}
+
+.student-list {
+  color: black;
+  font-size: #334155;
+  margin-bottom: 16px;
+}
