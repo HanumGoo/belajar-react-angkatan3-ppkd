@@ -1,6 +1,7 @@
-import { Form, Button, Card, Container, Row, Col, Alert } from "react-bootstrap";
+import { Form, Button, Card, Container, Row, Col, Alert, FormControl } from "react-bootstrap";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import api from "../services/api.js";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -14,30 +15,37 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const response = await fetch("http://localhost:8000/api/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify({ email, password }),
+      const response = await api.post("/login", {
+        email,
+        password,
       });
-      const data = await response.json();
-      if (response.ok) {
-        localStorage.setItem("token", data.token);
-        navigate("/dashboard");
-      } else {
-        if (response.status === 422 && data.error) {
-          const firstKey = Object.keys(data.error)[0];
-          setError(data.error[firstKey][0]);
-        } else {
-          setError(data.message || "upss Email and password fail!");
-          return;
-        }
-      }
+      const data = response;
+
+      localStorage.setItem("token", data.token);
+      navigate("/dashboard");
     } catch (error) {
+      // console.log(error.response.status);
+      if (error.response) {
+        if (error.response.status == 422) {
+          const rawErrors = error.response.data.error;
+          const formatError = {};
+
+          Object.keys(rawErrors).forEach((key) => {
+            formatError[key] = rawErrors[key][0];
+          });
+
+          setError(formatError);
+        } else if (error.response.status == 401) {
+          setError({
+            message: error.response.data.message,
+          });
+        } else {
+          // console.log(error.response);
+        }
+      } else {
+        setError("Server Error");
+      }
       console.log(error);
-      setError("Server Error");
     } finally {
       setLoading(false);
     }
@@ -51,15 +59,17 @@ const Login = () => {
             <Card.Body className="p-4">
               <h3 className="text-center mb-4 font-weight-bold">Login Form</h3>
 
-              {error && <Alert variant="danger">{error}</Alert>}
+              {error.message && <Alert variant="danger">{error?.message}</Alert>}
               <Form onSubmit={handleLogin}>
                 <Form.Group className="mb-3">
                   <Form.Label>Email</Form.Label>
-                  <Form.Control type="email" placeholder="email@gmail.com" value={email} onChange={(e) => setEmail(e.target.value)}></Form.Control>
+                  <Form.Control type="email" placeholder="email@gmail.com" value={email} onChange={(e) => setEmail(e.target.value)} isInvalid={!!error?.email}></Form.Control>
+                  <FormControl.Feedback type="invalid">{error?.email}</FormControl.Feedback>
                 </Form.Group>
                 <Form.Group className="mb-3">
                   <Form.Label>Password</Form.Label>
-                  <Form.Control type="password" placeholder="enter your password" value={password} onChange={(e) => setPassword(e.target.value)}></Form.Control>
+                  <Form.Control type="password" placeholder="enter your password" value={password} onChange={(e) => setPassword(e.target.value)} isInvalid={!!error?.password}></Form.Control>
+                  <FormControl.Feedback type="invalid">{error?.password}</FormControl.Feedback>
                 </Form.Group>
                 <Button variant="primary" type="submit" className="w-100 py-2 mt-2" disabled={loading}>
                   {loading ? "Loading..." : "Login"}
