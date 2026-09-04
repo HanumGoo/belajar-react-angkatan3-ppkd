@@ -1,16 +1,68 @@
 import { Table, Container, Badge, Card, Row, Col, Button } from "react-bootstrap";
 import UserModal from "../components/UserModal";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import AppModal from "../components/AppModal";
+import api from "../services/api";
+import UserForm from "../components/UserForm";
 
 const User = () => {
   const [show, setShow] = useState(false);
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [isEdit, setIsEdit] = useState(false);
+  const [submitLoading, setSubmitLoading] = useState(false);
 
+  const initialForm = {
+    id: null,
+    name: "",
+    email: "",
+    password: "",
+    status: true,
+  };
+
+  const [formData, setFormData] = useState(initialForm);
+
+  const fetchUsers = async () => {
+    setLoading(true);
+    try {
+      const response = await api.get("user");
+      const result = await response.data;
+      console.log("hasil fetch ", result);
+      setUsers(result);
+    } catch (error) {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+  // fetchUsers();
   const handleCreate = () => {
+    setIsEdit(false);
+    setFormData(initialForm);
     setShow(true);
   };
 
   const handleCloseModal = () => {
     setShow(false);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    setSubmitLoading(true);
+
+    try {
+      const payload = { ...formData };
+      const response = await api.post("/user", payload);
+
+      setShow(false);
+      fetchUsers();
+    } catch (error) {
+      console.log("error " + error);
+      const errMsg = error.response?.data?.message || "Internal Server Error";
+    }
   };
 
   return (
@@ -40,25 +92,37 @@ const User = () => {
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td>blabla</td>
-                  <td>asdfasdf</td>
-                  <td>asdfasdf</td>
-                  <td>asdfasdf</td>
-                  <td>asdfasdfasdf</td>
-                </tr>
-                <tr>
-                  <td>blabla</td>
-                  <td>asdfasdf</td>
-                  <td>asdfasdf</td>
-                  <td>asdfasdf</td>
-                  <td>asdfasdfasdf</td>
-                </tr>
+                {users.map((user, index) => (
+                  <tr key={user.id}>
+                    <td>{index + 1}</td>
+                    <td>{user.name}</td>
+                    <td>{user.email}</td>
+                    <td>{user.status}</td>
+                    <td>
+                      <Button variant="outline-warning" size="sm" className="me-2">
+                        Edit
+                      </Button>
+                      <Button variant="outline-danger" size="sm" className="me-2">
+                        Delete
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </Table>
           </Card.Body>
         </Card>
-        <UserModal show={show} handleClose={handleCloseModal} />
+        <AppModal
+          show={show}
+          handleClose={handleCloseModal}
+          title={isEdit ? "Edit User" : "Create New User"}
+          submitText={isEdit ? "Save Change" : "Save"}
+          variant={isEdit ? "Warning" : "Primary"}
+          isLoading={submitLoading}
+          formId="user-form"
+        >
+          <UserForm formId="user-form" formData={formData} setFormData={setFormData} onSubmit={handleSubmit}></UserForm>
+        </AppModal>
       </Container>
     </>
   );
