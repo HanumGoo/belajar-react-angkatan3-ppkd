@@ -11,6 +11,7 @@ const User = () => {
   const [loading, setLoading] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
   const [submitLoading, setSubmitLoading] = useState(false);
+  const [validationError, setValidationError] = useState({});
 
   const initialForm = {
     id: null,
@@ -61,7 +62,19 @@ const User = () => {
       fetchUsers();
     } catch (error) {
       console.log("error " + error);
-      const errMsg = error.response?.data?.message || "Internal Server Error";
+
+      if (error.response.status === 422 && error.response.data.errors) {
+        const rawErrors = error.response.data.errors;
+        const formatError = {};
+
+        Object.keys(rawErrors).forEach((key) => {
+          formatError[key] = rawErrors[key][0];
+        });
+
+        setValidationError(formatError);
+      } else {
+        const errMsg = error.response?.data?.message || "Internal Server Error";
+      }
     }
   };
 
@@ -121,7 +134,7 @@ const User = () => {
           isLoading={submitLoading}
           formId="user-form"
         >
-          <UserForm formId="user-form" formData={formData} setFormData={setFormData} onSubmit={handleSubmit}></UserForm>
+          <UserForm errors={validationError} formId="user-form" formData={formData} setFormData={setFormData} onSubmit={handleSubmit}></UserForm>
         </AppModal>
       </Container>
     </>

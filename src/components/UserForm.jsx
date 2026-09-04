@@ -1,6 +1,6 @@
 import { Form } from "react-bootstrap";
 
-const UserForm = ({ formId, formData, setFormData, onSubmit }) => {
+const UserForm = ({ formId, formData, setFormData, onSubmit, errors = {} }) => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -14,15 +14,18 @@ const UserForm = ({ formId, formData, setFormData, onSubmit }) => {
       <Form id={formId} onSubmit={onSubmit}>
         <Form.Group className="mb-3">
           <Form.Label className="fw-semibold">Name</Form.Label>
-          <Form.Control type="text" name="name" placeholder="Enter Your Name" className="fw-semibold" value={formData.name} onChange={handleChange}></Form.Control>
+          <Form.Control isInvalid={!!errors.name} type="text" name="name" placeholder="Enter Your Name" className="fw-semibold" value={formData.name} onChange={handleChange}></Form.Control>
+          <Form.Control.Feedback type="invalid">{errors.name}</Form.Control.Feedback>
         </Form.Group>
         <Form.Group className="mb-3">
           <Form.Label className="fw-semibold">Email</Form.Label>
-          <Form.Control type="email" name="email" placeholder="Enter Your Email" className="fw-semibold" value={formData.email} onChange={handleChange}></Form.Control>
+          <Form.Control isInvalid={!!errors.email} isInvalid={!!errors.name} type="email" name="email" placeholder="Enter Your Email" className="fw-semibold" value={formData.email} onChange={handleChange}></Form.Control>
+          <Form.Control.Feedback type="invalid">{errors.email}</Form.Control.Feedback>
         </Form.Group>
         <Form.Group className="mb-3">
           <Form.Label className="fw-semibold">Password</Form.Label>
-          <Form.Control type="password" name="password" placeholder="Enter Your Password" className="fw-semibold" value={formData.password} onChange={handleChange}></Form.Control>
+          <Form.Control isInvalid={!!errors.password} type="password" name="password" placeholder="Enter Your Password" className="fw-semibold" value={formData.password} onChange={handleChange}></Form.Control>
+          <Form.Control.Feedback type="invalid">{errors.password}</Form.Control.Feedback>
         </Form.Group>
         <Form.Group className="mb-3">
           <Form.Label className="fw-semibold">Status</Form.Label>
